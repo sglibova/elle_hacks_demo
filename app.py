@@ -1,3 +1,4 @@
+from distutils.util import execute
 from dotenv import load_dotenv
 import time
 import os
@@ -16,7 +17,8 @@ mantium_token = client.BearerAuth().get_token()
 
 #check and confirm successful login
 if mantium_token:
-    print("Successfully logged in to Mantium API with user {mantium_user}.")
+    print("Successfully logged in to Mantium API with \
+user {mantium_user}.".format(mantium_user=mantium_user))
 
 # retrieve Ice Cream Generator Prompt by ID from Mantium
 ice_cream_prompt = prompt.Prompt.from_id(prompt_id)
@@ -32,19 +34,27 @@ def prompt_results():
 
     time.sleep(1)  # prompt execution takes a small amount of time > this helps ensure a response
 
-    while executed_prompt.output == None or executed_prompt.output == "":
-        print("Prompt result empty, re-running prompt.")
+    while executed_prompt.status != "COMPLETED":
+        time.sleep(1)
+        executed_prompt.refresh()
+        print("Prompt status: " + executed_prompt.status)
+
+    assert isinstance(executed_prompt.output, str)
+    prompt_result = executed_prompt.output
+        
+    while prompt_result == "" or prompt_result == "{}":
+        print("Prompt result empty. Re-running prompt.")
+        executed_prompt = ice_cream_prompt.execute("")
+        executed_prompt.refresh()
+
+        time.sleep(1)
 
         while executed_prompt.status != "COMPLETED":
-            print("Prompt processing status: {executed_prompt.status}")
-            prompt.refresh()
             time.sleep(1)
-        
-        executed_prompt.execute("")
-        executed_prompt.refresh()
-        time.sleep(1)
+            executed_prompt.refresh()
+            print("Prompt status: " + executed_prompt.status)
     
-    prompt_result = executed_prompt.output
+        prompt_result: str = executed_prompt.output
     
 
     return prompt_result
