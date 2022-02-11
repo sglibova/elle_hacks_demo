@@ -1,0 +1,11 @@
+certifi==2021.10.8
+chardet==4.0.0
+idna==2.10
+jsonapi-requests==0.6.2
+mantiumapi==0.1.54
+PyJWT==2.1.0
+python-dotenv==0.19.2
+requests==2.25.1
+six==1.16.0
+tenacity==7.0.0
+urllib3==1.26.8
